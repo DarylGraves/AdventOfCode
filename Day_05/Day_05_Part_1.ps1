@@ -1,33 +1,3 @@
-function Rewording {
-    param (
-        [string[]]$Data
-    )
-    
-    # Find out how many stacks there are...
-    $LineBreak = 0
-    $NoOfStacks = 0
-    for ($i = 0; $i -lt $Data.Length; $i++) {
-        if ($Data[$i] -eq "") {
-            $StackData = $Data[$i-1]
-            
-            # Supports up to 9 stacks...
-            $LineBreak = $i-1
-            $NoOfStacks = ($StackData.GetEnumerator() | Where-Object { $_ -ne " "}).Count
-            break
-        }
-    }
-
-    # Create that many stacks 
-    $Stacks = New-Object System.Collections.Generic.List[System.Object]
-    for ($i = 0; $i -lt $NoOfStacks; $i++) {
-        $Stack = New-Object System.Collections.Stack
-        $Stacks.add($Stack)
-        $Stacks[$i].Push($i);
-    }
-    
-    $Stacks
-}
-
 function Split-Input {
     param (
         [string[]]$Data
