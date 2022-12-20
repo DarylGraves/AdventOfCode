@@ -2,36 +2,56 @@ enum ItemType {
     File
     Directory
 }
+
 class Item {
     [Item]$Parent;
     [System.Collections.ArrayList]$Contents;
     [String]$Name;
     [Double]$Size;
-    [ItemType]$ItemType
+    [ItemType]$Type
 }
 
-function New-Content {
+# If I'm honest I'm not happy using a global variable here but it saves time when we can add the folder
+# in to this list as we work. Otherwise we have to go through all the file structure again searhing for them later on.
+$Global:Folders = New-Object System.Collections.ArrayList
+
+function New-FileOrFolder {
+    # Creates files and folders for the New-FolderStructure function
     param (
         [Switch]$Root,
-        [String]$Name
+        [Switch]$Directory,
+        [Switch]$File,
+        [String]$Name,
+        [Int]$Size
     )
 
     if ($Root) {
         return New-Object -TypeName Item -Property @{
             Parent = $null;
             Contents = New-Object -Type System.Collections.ArrayList
-            Name = "\"
+            Name = "/"
             Size = 0
-            ItemType = [ItemType]::Directory
+            Type = [ItemType]::Directory
         }
     }
     elseif ($File) {
-        # TODO: Not working yet
+        return New-Object -TypeName Item -Property @{
+            Parent = $FolderStructure
+            Contents = New-Object -Type System.Collections.ArrayList
+            Name = $Name
+            Size = $Size 
+            Type = [ItemType]::File
+        }
     }
     elseif ($Directory) {
-        # TODO: Not working yet
+        return New-Object -TypeName Item -Property @{
+            Parent = $FolderStructure
+            Contents = New-Object -Type System.Collections.ArrayList
+            Name = $Name
+            Size = 0
+            Type = [ItemType]::Directory
+        }
     }
-    
 }
 
 function Get-Output {
@@ -39,6 +59,9 @@ function Get-Output {
         [int]$StartRow,
         [string[]]$Data
     )
+    # This goes through the next rows and stops when it finds a row which begins with "$"
+    # Rows without "$" can be considered the output from an "Ls"
+
     # Returns row numbers which do not begin "$"
     for ($i = $StartRow; $i -lt $Data.Count; $i++) {
         if ($Data[$i][0] -eq "$") {
@@ -53,21 +76,25 @@ function Get-Output {
 function New-FolderStructure {
     param (
         [string[]]$Data
-    )
-    
-    $FolderStructure = $null
+        )
+        # Create the file and folders structure based on the data passed through
 
+    $FolderStructure = $null
     for ($i = 0; $i -lt $Data.Count; $i++) {
         if ($Data[$i][0] -eq '$') {
+            # On each row of text act differently depending on if it's a "cd", "ls", etc
             switch -Regex ($Data[$i]) {
                 '\$ cd \/' { 
-                    Write-Host "Root Directory"
-                    $FolderStructure = New-Content -Root
+                    # "cd /"
+                    $NewItem = New-FileOrFolder -Root
+                    $FolderStructure = $NewItem
+                    $Folders.Add($NewItem)
+
                     break;
                 }
 
                 '\$ ls' { 
-                    Write-Host "Ls - Get-Output"
+                    # ls command so need to add dirs and files to FolderStructure
                     $TextToParse = Get-Output -StartRow ($i+1) -Data $Data
                     $i = ($TextToParse[1] - 1)
 
@@ -75,29 +102,16 @@ function New-FolderStructure {
                         switch -Regex ($Data[$y]) {
                             'dir (\w.*)' { 
                                 # Creating Directory
-                                $NewItem = New-Object -TypeName Item -Property @{
-                                    Parent = $FolderStructure
-                                    Contents = New-Object -Type System.Collections.ArrayList
-                                    Name = $Matches[1]
-                                    Size = 0
-                                    ItemType = [ItemType]::Directory
-                                }
-
-                                $folderStructure.Contents.Add($NewItem)
+                                $NewItem = New-FileOrFolder -Directory -Name $Matches[1]
+                                $folderStructure.Contents.Add($NewItem) | Out-Null
+                                $Folders.Add($NewItem) | Out-Null
                                 break;
                             }
 
                             '(\d.*) (\w.*)' {
                                 # Creating File
-                                $NewItem = New-Object -TypeName Item -Property @{
-                                    Parent = $FolderStructure
-                                    Contents = New-Object -Type System.Collections.ArrayList
-                                    Name = $Matches[2]
-                                    Size = $Matches[1] 
-                                    ItemType = [ItemType]::File
-                                }
-
-                                $FolderStructure.Contents.Add($NewItem)
+                                $NewItem = New-FileOrFolder -File -Name $Matches[2] -Size $Matches[1]
+                                $FolderStructure.Contents.Add($NewItem) | Out-Null
                                 break;
                             }
                             Default {}
@@ -106,26 +120,23 @@ function New-FolderStructure {
                     break;
                 }
                 
-                '\$ cd ..' { 
-                    Write-Host "cd .."
-                    $FolderStructure = $FolderStructure.Parent
-                    break;
-                }
-
                 '(\$ cd )(\w.*)' { 
-                    Write-Host "cd $($Matches[2])"
-                    Write-Host $FolderStructure.Contents.Name -ForegroundColor Yellow
+                    # cd ___ so going forward in the linked list
                     $FolderStructure = ($FolderStructure.Contents | Where-Object { $_.Name -eq $Matches[2] } )
                     break;
                 }
-
+                
+                '\$ cd ..' { 
+                    # cd .. so going back in the linked list
+                    $FolderStructure = $FolderStructure.Parent
+                    break;
+                }
                 Default {}
             }
         }
     }
 
     # Rewind back to the Root
-
     while($FolderStructure.Parent -ne $null)
     {
         $FolderStructure = $FolderStructure.Parent
@@ -134,13 +145,27 @@ function New-FolderStructure {
     return $FolderStructure
 }
 
-function Get-FolderSizes {
-    param (
-        [Item[]]$Data
+function Get-FolderSize {
+    param(
+        [Object]$Folder
     )
     
-    $Data
+    $Size = 0
+    foreach ($Item in $Folder.Contents) {
+        if ($Item.Type -eq "File") {
+            $Size += $Item.Size
+        }
+        elseif ($Item.Type -eq "Directory") {
+            $Size += (Get-FolderSize -Folder $Item).Size
+        }
+    }
+
+    return [PSCustomObject]@{
+        Name = $Folder.Name
+        Size = $Size
+    }
 }
 
 $Content = New-FolderStructure -Data (Get-Content .\input.txt)
-$Content
+$FolderSizes = foreach ($Folder in $Folders) { Get-FolderSize -Folder $Folder }
+($FolderSizes | Where-Object { $_.Size -le 100000 } | Measure-Object -Sum Size).Sum
