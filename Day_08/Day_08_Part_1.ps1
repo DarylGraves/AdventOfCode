@@ -93,12 +93,12 @@ function Scan-Trees {
         "NorthToSouth" { 
             Write-Debug "North To South"
 
-            # Row
-            for ($y = 1; $y -le $Centre; $y++) {
-                $HighestEncountered = $Data[($y-1),0].Height
-                Write-Debug "New Row - Highest Encountered reset to $HighestEncountered"
-                # Column
-                for ($x = 1; $x -lt $X_Length; $x++) {
+            #Column
+            for ($x = 1; $x -lt $x_length; $x++) {
+                $HighestEncountered = $Data[0,($x)].Height
+                Write-Debug "HighestEncountered Starts at: $HighestEncountered"
+                # Row
+                for ($y = 1; $y -lt $Y_Length; $y++) {
                     $CurTree = $Data[$y,$x]
                     Write-Debug "Tree X: $x`tTree Y: $y`tTree Height: $($CurTree.Height)`tHighestSoFar: $HighestEncountered"
 
@@ -109,18 +109,40 @@ function Scan-Trees {
                     }
                 }
             }
-
+            
             break
         }
 
         "SouthToNorth" {
             Write-Debug "South To North"
-            
+
+            # Column
+            for ($x = 1; $x -lt $x_length; $x++) {
+                $HighestEncountered = $Data[($Y_Length -1), $x].Height
+                Write-Debug "HighestEncountered Starts at $HighestEncountered"
+                # Row
+                for ($y = $Y_Length - 1; $y -gt 0; $y--) {
+                    $CurTree = $Data[$y,$x]
+                    Write-Debug "Tree X: $x`tTree Y: $y`tTree Height: $($CurTree.Height)`tHighestSoFar: $HighestEncountered"
+
+                    if ($CurTree.Height -gt $HighestEncountered) {
+                        $HighestEncountered = $CurTree.Height
+                        Write-Debug "HighestEnountered now equals $HighestEncountered"
+                        $CurTree.Visible = $True
+                    }
+                }
+            }
+
+            break
+        }
+        "WestToEast" {
+            Write-Debug "West To East"
+
             # Row
-            for ($y = $Y_Length - 2; $y -ge $Centre; $y--) {
-                $HighestEncountered = $Data[($y+1),0].Height
-                Write-Debug "New Row - Highest Encountered reset to $HighestEncountered"
-                # Column
+            for ($y = 1; $y -lt $Y_Length; $y++) {
+                $HighestEncountered = $Data[$y, 0].Height
+                Write-Debug "HighestEncountered Starts at $HighestEncountered"
+                #Column
                 for ($x = 1; $x -lt $X_Length; $x++) {
                     $CurTree = $Data[$y,$x]
                     Write-Debug "Tree X: $x`tTree Y: $y`tTree Height: $($CurTree.Height)`tHighestSoFar: $HighestEncountered"
@@ -132,14 +154,28 @@ function Scan-Trees {
                     }
                 }
             }
-            break
-        }
-        "WestToEast" {
-            Write-Debug "West To East"
+
             break
         }
         "EastToWest" {
             Write-Debug "East To West"
+            
+            # Row
+            for ($y = 1; $y -lt $Y_Length; $y++) {
+                $HighestEncountered = $Data[$y, ($x_length -1)].Height
+                Write-Debug "HighestEncountered Starts at $HighestEncountered"
+                #Column
+                for ($x = $X_Length -1; $x -gt 0; $x--) {
+                    $CurTree = $Data[$y,$x]
+                    Write-Debug "Tree X: $x`tTree Y: $y`tTree Height: $($CurTree.Height)`tHighestSoFar: $HighestEncountered"
+
+                    if ($CurTree.Height -gt $HighestEncountered) {
+                        $HighestEncountered = $CurTree.Height
+                        Write-Debug "HighestEncountered now equals $HighestEncountered"
+                        $CurTree.Visible = $True
+                    }
+                }
+            }
             break
         }
     }
@@ -148,9 +184,10 @@ function Scan-Trees {
 
 $TreeArray = New-2dArray -Data (Get-Content .\input.txt) 
 Get-Perimiter -Data $TreeArray
-Scan-Trees -Data $TreeArray -Direction "NorthToSouth" -Debug
-Write-Trees -Data $TreeArray
-#Scan-Trees -Data $TreeArray -Direction "SouthToNorth" -Debug
-#Write-Trees -Data $TreeArray
-#$Answer = ($TreeArray | Where-Object {$_.Visible -eq $True} | Group-Object).Count
-#Write-Host "`nThe Answer is $Answer" -ForegroundColor Green
+Scan-Trees -Data $TreeArray -Direction "NorthToSouth" 
+Scan-Trees -Data $TreeArray -Direction "SouthToNorth" 
+Scan-Trees -Data $TreeArray -Direction "WestToEast" 
+Scan-Trees -Data $TreeArray -Direction "EastToWest" 
+Write-Trees -Data $TreeArray # It so pretty!
+$Answer = ($TreeArray | Where-Object {$_.Visible -eq $True} | Group-Object).Count
+Write-Host "`nThe Answer is $Answer" -ForegroundColor Green
