@@ -178,6 +178,11 @@ function Scan-Trees {
 }
 
 function Find-ScenicValue {
+    # Goes through the specified tree and checks left, right,  up and down to see how many trees it can see
+    # Note: The debugging uses the idea of (X+1, Y+1). This was because the 0 indexing kept throwing me off
+    #       When I was trying to review the answers against the actual input data. 
+    #       In hindsight, I'm not sure using 2d Arrays in the y, x order was a good idea!
+
     [cmdletbinding()]
     param (
         [Object[,]]$Data,
@@ -280,7 +285,6 @@ function Find-ScenicValue {
 $TreeArray = New-2dArray -Data (Get-Content .\input.txt) 
 $ScenicValues = [System.Collections.ArrayList]::new()
 
-#Find-ScenicValue -Data $TreeArray -tree_x 98 -tree_y 98 -debug
 for ($y = 0; $y -lt $Y_Length; $y++) {
     for ($x = 0; $x -lt $X_Length; $x++) {
         $ScenicValues.Add((Find-ScenicValue -Data $TreeArray -tree_y $y -tree_x $x)) | Out-Null
