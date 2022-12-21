@@ -109,7 +109,6 @@ function Scan-Trees {
                     }
                 }
             }
-            
             break
         }
 
@@ -132,9 +131,9 @@ function Scan-Trees {
                     }
                 }
             }
-
             break
         }
+
         "WestToEast" {
             Write-Debug "West To East"
 
@@ -154,9 +153,9 @@ function Scan-Trees {
                     }
                 }
             }
-
             break
         }
+
         "EastToWest" {
             Write-Debug "East To West"
             
