@@ -2,13 +2,6 @@ $Global:X_Length = 0
 $Global:Y_Length = 0
 $Global:Centre = 0
 
-enum Direction {
-    NorthToSouth
-    SouthToNorth
-    WestToEast
-    EastToWest
-}
-
 class Tree {
     [int]$Height
     [bool]$Visible
@@ -22,7 +15,6 @@ function New-2dArray {
     
     $Global:X_Length = $Data[0].Length
     $Global:Y_Length = $Data.Count
-    $Global:Centre = ($Data[0].Length - 1) / 2
 
     Write-Debug "Rows =`t`t$X_Length"
     Write-Debug "Columns =`t$Y_Length "
