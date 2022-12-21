@@ -8,6 +8,7 @@ class Tree {
 }
 
 function New-2dArray {
+    # Converts the text file into a 2D array of type "Tree"
     [CmdletBinding()]
     param (
         [string[]]$Data
@@ -34,6 +35,7 @@ function New-2dArray {
 }
 
 function Get-Perimiter {
+    # The perimiter is all visible regardless of height so mark all these trees visible
     [CmdletBinding()]
     param (
         [Object[,]]$Data
@@ -55,6 +57,7 @@ function Get-Perimiter {
 }
 
 function Write-Trees {
+    # Writes the result to the screen - Partly for troubleshooting, partly because it looks cool
     param (
         [Object[,]]$Data
     )
@@ -75,6 +78,7 @@ function Write-Trees {
 }
 
 function Scan-Trees {
+    # Go from one end to the other and mark each tree as visible if it's the largest so far in that direction
     [cmdletbinding()]
     param (
         [Object[,]]$Data,
@@ -174,11 +178,13 @@ function Scan-Trees {
 }
 
 $TreeArray = New-2dArray -Data (Get-Content .\input.txt) 
+
 Get-Perimiter -Data $TreeArray
 Scan-Trees -Data $TreeArray -Direction "NorthToSouth" 
 Scan-Trees -Data $TreeArray -Direction "SouthToNorth" 
 Scan-Trees -Data $TreeArray -Direction "WestToEast" 
 Scan-Trees -Data $TreeArray -Direction "EastToWest" 
 Write-Trees -Data $TreeArray # It so pretty!
+
 $Answer = ($TreeArray | Where-Object {$_.Visible -eq $True} | Group-Object).Count
 Write-Host "`nThe Answer is $Answer" -ForegroundColor Green
