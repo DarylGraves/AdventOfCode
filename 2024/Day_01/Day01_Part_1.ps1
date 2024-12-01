@@ -10,7 +10,6 @@ foreach ($Row in $Data) {
 }
 
 $ToAdd = @()
-$Result = @()
 $LeftSideSorted = $LeftRows | Sort-Object -Descending
 $RightSideSorted = $RightRows | Sort-Object -Descending
 
@@ -19,11 +18,9 @@ for ($i = $CountofRows; $i -gt 0; $i--) {
     $RightSideComparison = $RightSideSorted[$i - 1]
 
     if ($LeftSideComparison -gt $RightSideComparison) {
-        $Adding = $LeftSideComparison - $RightSideComparison
         $ToAdd += $LeftSideComparison - $RightSideComparison
     }
     else {
-        $Adding = $RightSideComparison - $LeftSideComparison
         $ToAdd += $RightSideComparison - $LeftSideComparison
     }
 }
