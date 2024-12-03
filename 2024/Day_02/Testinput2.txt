@@ -1,1 +1,16 @@
-9 11 14 12 16
+1 2 6 9 # Fail because jumping from 2 to 9 and 6 to 9 doesn't work 
+1 5 5 9 # Fail because jumping from 2 to 9 and 6 to 9 doesn't work 
+1 2 6 9 # Fail because jumping from 2 to 9 and 6 to 9 doesn't work 
+1 2 3 4 5 6 7 # Pass - StraightForward
+1 2 3 4 6 6 # Pass - Same Number Once
+1 2 3 4 4 6 6 # Fail - Same Number Twice
+1 8 3 4 5 6 7 # Pass - One big jump
+1 8 9 4 5 6 7 # Fail - Two big jumps
+1 2 5 6 7 8 9 # Pass - Testing 3 boundary
+1 2 6 9 # Fail because jumping from 2 to 9 and 6 to 9 doesn't work 
+9 8 7 6 5 4 3 2 1 # Pass - Descending
+9 8 7 7 6 5 4 3 2 1 # Pass - Descending - Same Number Once
+9 8 7 7 6 6 5 4 3 2 1 # Fail - Descending - Same Number Twice
+9 8 1 7 6 5 4 3 2 1 # Pass - Descending - One big jump
+9 8 1 7 6 1 4 3 2 1 # Fail - Descending - Two big jump
+1 9 8 7 6 5 4 3 2 1 # Pass - Descending when you move the first!
