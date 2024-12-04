@@ -18,7 +18,7 @@ function Start-Scan {
 }
 
 function Find-Match {
-    # Scans in one direction to see if the pattern can be found
+    # Checks the characters in each corner to see if they are a valid match
     param (
         [System.Object[]]$Data,
         [int]$XStartPos,
