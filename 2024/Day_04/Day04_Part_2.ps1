@@ -57,8 +57,7 @@ function Find-Match {
 for ($y = 1; $y -lt $NoOfRows; $y++) {
     for ($x = 1; $x -lt $NoOfColumns; $x++) {
         if ($Data[$y][$x] -eq "A") { 
-            $Answer = Start-Scan -Data $Data -XStartPos $X -YStartPos $Y
-            $MatchResults += $Answer
+            $MatchResults += Start-Scan -Data $Data -XStartPos $X -YStartPos $Y
         }
     }
 }
