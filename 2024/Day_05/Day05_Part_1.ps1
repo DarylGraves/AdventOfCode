@@ -83,13 +83,11 @@ function Get-RowResult {
         if ($null -ne $HashTable[($allPages[$x])]) {
             $isValid = Get-RuleResult -AllPages $allPages -CurrentPage $x -HashTable $HashTable
             if ($isValid -eq $false) {
-                Write-Host "$Row failed the test" -ForegroundColor Red
                 return $false
             }
         }
     }
 
-    Write-Host "$Row passed the test" -ForegroundColor Green
     return $allPages[(($allPages.Count - 1) / 2) ]
 }
 #########################
@@ -104,7 +102,6 @@ foreach ($row in $pageRows) {
     if ($result -eq $false) {
         continue 
     }
-    Write-Host "Result is $result"
 
     $answer += $result
 }   
