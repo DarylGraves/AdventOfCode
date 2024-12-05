@@ -18,7 +18,7 @@ function Start-Scan {
 }
 
 function Find-Match {
-    # Scans in one direction to see if the pattern can be found
+    # Checks the characters in each corner to see if they are a valid match
     param (
         [System.Object[]]$Data,
         [int]$XStartPos,
@@ -57,8 +57,7 @@ function Find-Match {
 for ($y = 1; $y -lt $NoOfRows; $y++) {
     for ($x = 1; $x -lt $NoOfColumns; $x++) {
         if ($Data[$y][$x] -eq "A") { 
-            $Answer = Start-Scan -Data $Data -XStartPos $X -YStartPos $Y
-            $MatchResults += $Answer
+            $MatchResults += Start-Scan -Data $Data -XStartPos $X -YStartPos $Y
         }
     }
 }
