@@ -1,10 +1,9 @@
 ##################################################
 # Variables
 ##################################################
-$Data = Get-Content .\TestInput2.txt
+$Data = Get-Content .\Input.txt
 $Exclude = "."
 $HashTable = @{}
-# $HashTable = New-Object System.Collections.Hashtable ([System.StringComparer]::Ordinal)
 $VisualMode = $true
 
 ##################################################
@@ -19,12 +18,12 @@ function Update-HashTable {
         [int]$X
     )
     
-    if ($Data[$y][$x] -eq $char) {
-        if (!$HashTable.ContainsKey($char)) {
-            $HashTable[$char] = @()
+    if ($Data[$y][$x] -ceq $char) {
+        if (!$HashTable.ContainsKey([int][char]$char)) {
+            $HashTable[[int][char]$char] = @()
         }
 
-        $HashTable[$char] += "$y, $x"
+        $HashTable[[int][char]$char] += "$y, $x"
     }
 
     return $HashTable
@@ -48,7 +47,7 @@ function Print-Grid {
         foreach ($coordinate in $HashTable[$char]) {
             $CoordY, $CoordX = $coordinate -split ", "
             [console]::SetCursorPosition($CoordX, $CoordY)
-            Write-Host $char -NoNewline -ForegroundColor Yellow
+            Write-Host ([char]$char) -NoNewline -ForegroundColor Yellow
         }
     }
 }
@@ -198,7 +197,7 @@ $HashTable["#"] = @()
 
 # Populating the hashes
 foreach ($char in $Characters) {
-    $Coordinates = $HashTable[$char]
+    $Coordinates = $HashTable[[int][char]$char]
     Find-Hashes -Coordinates $Coordinates -HashTable $HashTable -Characters $char
 }
 
