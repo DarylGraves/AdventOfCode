@@ -4,7 +4,7 @@
 $Data = Get-Content .\Input.txt
 $Exclude = "."
 $HashTable = @{}
-$VisualMode = $true
+$VisualMode = $false
 
 ##################################################
 # Functions
@@ -77,14 +77,6 @@ function Find-Hashes {
             $AddBeforeX = ([int]$oneX - [int]$diffX)
             $AddAfterY = ([int]$twoY + [int]$diffY) 
             $AddAfterX = ([int]$twoX + [int]$diffX)
-
-            if (!$VisualMode) {
-                Write-Host "`+ X: $AddBeforeX Y: $AddBeforeY" -ForegroundColor Green
-                Write-Host "1 X: $oneX Y: $oneY " 
-                Write-Host "2 X: $twoX Y: $twoY"
-                Write-Host "`+ X: $AddAfterX Y: $AddAfterY" -ForegroundColor Green
-                Write-Host "-------------------" -ForegroundColor Yellow
-            }
 
             if ($VisualMode) {
                 [console]::SetCursorPosition(0, $RowCount + 2)
